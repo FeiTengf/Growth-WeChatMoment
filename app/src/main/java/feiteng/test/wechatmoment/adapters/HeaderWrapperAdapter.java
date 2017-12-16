@@ -1,10 +1,17 @@
 package feiteng.test.wechatmoment.adapters;
 
 import android.preference.PreferenceActivity;
+import android.provider.ContactsContract;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.HeaderViewListAdapter;
+import android.widget.TextView;
+
+import feiteng.test.wechatmoment.R;
+import feiteng.test.wechatmoment.items.UserProfile;
+import feiteng.test.wechatmoment.widgets.LoaderImageView;
 
 /**
  * Wrapper class for recyclerAdapter, so we can add header view easier
@@ -29,7 +36,9 @@ public class HeaderWrapperAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == HEADER_TYPE && hasHeaderView()) {
+        if (viewType == HEADER_TYPE) {
+            mHeaderView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.view_headerview, parent, false);
             return new ViewHolder(mHeaderView);
         }
         return mInnerAdapter.onCreateViewHolder(parent, viewType);
@@ -37,8 +46,8 @@ public class HeaderWrapperAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        //Header View has got updated from the beginning.
-        if (position == 0 && hasHeaderView()) {
+        //Header View has got updated ealier.
+        if (position == 0) {
             return;
         }
         mInnerAdapter.onBindViewHolder(holder, getInnerPosition(position));
@@ -46,13 +55,14 @@ public class HeaderWrapperAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     @Override
     public int getItemCount() {
-        //check for potential HeaderView
-        return mInnerAdapter.getItemCount() + (hasHeaderView() ? 1 : 0);
+        //check for HeaderView
+        return mInnerAdapter.getItemCount() + 1;
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (position == 0 && hasHeaderView()) {
+        //it's header
+        if (position == 0) {
             return HEADER_TYPE;
         }
         return mInnerAdapter.getItemViewType(getInnerPosition(position));
@@ -72,23 +82,21 @@ public class HeaderWrapperAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
     /**
-     * Check if we have a header view or not
+     * Set Usr profile and avatar and name to mHeaderView
+     * The Recycler's header view will be updated
      *
-     * @return whether we got a headerview.
+     * @param profile
      */
-    boolean hasHeaderView() {
-        return mHeaderView != null;
-    }
+    public void setUsrProfile(UserProfile profile) {
+        if (mHeaderView != null) {
+            TextView nameView = (TextView) mHeaderView.findViewById(R.id.name_textview);
+            LoaderImageView profileView = (LoaderImageView) mHeaderView.findViewById(R.id.profile_imageview);
+            LoaderImageView avatarView = (LoaderImageView) mHeaderView.findViewById(R.id.avatar_imageview);
 
-
-    /**
-     * Set a headerView you want to use in this adapter.
-     * You shall be aware that there can only has one headerview, no more.
-     *
-     * @param headerView the HeaderView you want to set.
-     */
-    public void setHeaderView(View headerView) {
-        mHeaderView = headerView;
+            nameView.setText(profile.getUsrName());
+            profileView.loadUrl(profile.getAvatarUrl());
+            avatarView.loadUrl(profile.getAvatarUrl());
+        }
     }
 
     /**
@@ -98,10 +106,6 @@ public class HeaderWrapperAdapter extends RecyclerView.Adapter<RecyclerView.View
      * @return the pos in the wrapped adapter.
      */
     private int getInnerPosition(int pos) {
-        int ret = pos;
-        if (hasHeaderView()) {
-            ret = ret - 1;
-        }
-        return ret;
+        return pos - 1;
     }
 }

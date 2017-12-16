@@ -2,18 +2,40 @@ package feiteng.test.wechatmoment.items;
 
 import android.graphics.Bitmap;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
- * Created by inthe on 2017/12/15.
+ * The model for Usr
+ * including usrName, NickName, Profile, and Avatar.
  */
 
 public class UserProfile {
+
+
     String mUsrName;
     String mNickName;
     String mProfileUrl;
     String mAvatarUrl;
-    Bitmap mProfilePicCache;
-    Bitmap mAvatarPicCache;
 
+    /**
+     * Construct an instance through JsonObject, which may from the Internet
+     * Please be aware that <code>mProfileUrl</code> may be null, because it's in a comment
+     * Here  we catch that exception in this constructor
+     *
+     * @param jsonObject the json to be resolved.
+     * @throws JSONException if anything goes wrong
+     */
+    public UserProfile(JSONObject jsonObject) throws JSONException {
+        mUsrName = jsonObject.getString("username");
+        mNickName = jsonObject.getString("nick");
+        mAvatarUrl = jsonObject.getString("avatar");
+        try {
+            mProfileUrl = jsonObject.getString("profile-image");
+        } catch (JSONException e) {
+            mProfileUrl = null;
+        }
+    }
 
     public String getUsrName() {
         return mUsrName;
@@ -47,19 +69,8 @@ public class UserProfile {
         this.mAvatarUrl = mAvatarUrl;
     }
 
-    public Bitmap getProfilePicCache() {
-        return mProfilePicCache;
-    }
-
-    public void setProfilePicCache(Bitmap mProfilePicCache) {
-        this.mProfilePicCache = mProfilePicCache;
-    }
-
-    public Bitmap getAvatarPicCache() {
-        return mAvatarPicCache;
-    }
-
-    public void setAvatarPicCache(Bitmap mAvatarPicCache) {
-        this.mAvatarPicCache = mAvatarPicCache;
+    @Override
+    public String toString() {
+        return "UsrName:" + mUsrName;
     }
 }

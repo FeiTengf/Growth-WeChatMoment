@@ -5,6 +5,9 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+/**
+ * This is a holder for the <code>MomentItemsFragment</code>
+ */
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -16,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
 
         Fragment fragment = fm.findFragmentById(R.id.fragment_container);
         if (fragment == null) {
-            fragment = MomentItemsFragment.newInstance(1);
+            fragment = MomentItemsFragment.newInstance();
             fm.beginTransaction().add(R.id.fragment_container, fragment).commit();
         }
     }
