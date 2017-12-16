@@ -24,7 +24,7 @@ public class Tweet {
     //images
     List<String> mImages;
     //sender
-    UserProfile mSenderProfile;
+    UserProfile mSender;
     //comments 
     List<Comment> mComments;
 
@@ -44,11 +44,11 @@ public class Tweet {
         //adding default tweet
         mContent = "";
         mImages = new ArrayList<String>();
-        mSenderProfile = new UserProfile();
+        mSender = new UserProfile();
         mComments = new ArrayList<Comment>();
 
-        //Json must has content or image
-        if (!isValidTweet(tweetObj)) {
+        //A Tweet must have a valid senderS
+        if (!hasSender(tweetObj)) {
             throw new JSONException("Invalid Tweet: A tweet must have content or images");
         }
         //content
@@ -65,7 +65,7 @@ public class Tweet {
         }
         //sender
         JSONObject senderObj = tweetObj.getJSONObject(JSON_SENDER);
-        mSenderProfile = new UserProfile(senderObj);
+        mSender = new UserProfile(senderObj);
         //comments
         if (tweetObj.has(JSON_COMMENT)) {
             JSONArray commentArray = tweetObj.getJSONArray(JSON_COMMENT);
@@ -79,17 +79,24 @@ public class Tweet {
 
 
     /**
-     * Check whether it is a valid tweet, which means it must has a content or a image field
+     * Check whether this tweet has images or content, otherwise it should be ignored
      * At the same time, we should check the value of them should not be null or empty
      *
-     * @param jsonObj: JsonObject of a tweet, from tweets
-     * @return whether it is a valid tweet
+     * @return whether should be ignored in the tweets list.
      */
 
-    boolean isValidTweet(JSONObject jsonObj) throws JSONException {
-        boolean hasContent = jsonObj.has(JSON_CONTENT) && (!jsonObj.getString(JSON_CONTENT).isEmpty());
-        boolean hasImage = jsonObj.has(JSON_IMAGE) && (jsonObj.getJSONArray(JSON_IMAGE).length() > 0);
-        return hasContent || hasImage;
+    public boolean canbeIgnored() {
+        return mContent.isEmpty() && mImages.isEmpty();
+    }
+
+    /**
+     * Return whether this tweet has a sender field.
+     *
+     * @param tweetObj jsonObjet that containts a full tweet.
+     * @return whether it has a sender
+     */
+    boolean hasSender(JSONObject tweetObj) {
+        return tweetObj.has(JSON_SENDER);
     }
 
     public String getContent() {
@@ -100,13 +107,12 @@ public class Tweet {
         return mImages;
     }
 
-    public UserProfile getSenderProfile() {
-        return mSenderProfile;
+    public UserProfile getSender() {
+        return mSender;
     }
 
     public List<Comment> getComments() {
         return mComments;
     }
-
 
 }

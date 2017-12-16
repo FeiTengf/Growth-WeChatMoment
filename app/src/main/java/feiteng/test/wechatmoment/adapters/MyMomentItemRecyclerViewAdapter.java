@@ -6,21 +6,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import feiteng.test.wechatmoment.R;
-import feiteng.test.wechatmoment.items.DummyContent.DummyItem;
-
 import java.util.List;
 
+import feiteng.test.wechatmoment.R;
+import feiteng.test.wechatmoment.items.Tweet;
+
 /**
- * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
+ * {@link RecyclerView.Adapter} that can display a {@link Tweet} and makes a call to the
  * specified {@link }.
- * TODO: Replace the implementation with code for your data type.
  */
 public class MyMomentItemRecyclerViewAdapter extends RecyclerView.Adapter<MyMomentItemRecyclerViewAdapter.ViewHolder> {
 
-    private final List<DummyItem> mValues;
+    private final List<Tweet> mValues;
 
-    public MyMomentItemRecyclerViewAdapter(List<DummyItem> items) {
+    public MyMomentItemRecyclerViewAdapter(List<Tweet> items) {
         mValues = items;
     }
 
@@ -34,12 +33,17 @@ public class MyMomentItemRecyclerViewAdapter extends RecyclerView.Adapter<MyMome
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).id);
-        holder.mContentView.setText(mValues.get(position).content);
+        if (holder.mItem.canbeIgnored()) {
+            holder.mView.setVisibility(View.GONE);
+        }
+
+        holder.mIdView.setText(mValues.get(position).getSender().toString());
+        holder.mContentView.setText(mValues.get(position).getContent());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //process onclick here
             }
         });
     }
@@ -49,13 +53,13 @@ public class MyMomentItemRecyclerViewAdapter extends RecyclerView.Adapter<MyMome
         return mValues.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public final TextView mIdView;
-        public final TextView mContentView;
-        public DummyItem mItem;
+    class ViewHolder extends RecyclerView.ViewHolder {
+        final View mView;
+        final TextView mIdView;
+        final TextView mContentView;
+        Tweet mItem;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             mView = view;
             mIdView = (TextView) view.findViewById(R.id.id);

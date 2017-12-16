@@ -10,6 +10,7 @@ import feiteng.test.wechatmoment.items.Tweet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test some function of the class Tweet
@@ -64,7 +65,7 @@ public class TweetAndroidTest {
         assertNotNull(tweet);
         assertEquals(3, tweet.getImages().size());
         assertEquals("https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcRDy7HZaHxn15wWj6pXE4uMKAqHTC_uBgBlIzeeQSj2QaGgUzUmHg", tweet.getImages().get(0));
-        assertEquals("jport", tweet.getSenderProfile().getUsrName());
+        assertEquals("jport", tweet.getSender().getUsrName());
         assertEquals(2, tweet.getComments().size());
     }
 
@@ -89,7 +90,7 @@ public class TweetAndroidTest {
 
         assertNotNull(tweet);
         assertEquals(1, tweet.getImages().size());
-        assertEquals("snowman", tweet.getSenderProfile().getUsrName());
+        assertEquals("snowman", tweet.getSender().getUsrName());
         assertEquals(0, tweet.getComments().size());
     }
 
@@ -125,10 +126,27 @@ public class TweetAndroidTest {
 
         assertNotNull(tweet);
         assertEquals(1, tweet.getImages().size());
-        assertEquals("cfo", tweet.getSenderProfile().getUsrName());
+        assertEquals("cfo", tweet.getSender().getUsrName());
         assertEquals(1, tweet.getComments().size());
-        assertEquals("linkman", tweet.getComments().get(0).getSenderProfile().getUsrName());
+        assertEquals("linkman", tweet.getComments().get(0).getSender().getUsrName());
     }
 
+    @Test
+    public void test_igonred_tweet() throws Exception {
+        JSONObject object = new JSONObject("{\n" +
+                "    \"sender\": {\n" +
+                "      \"username\": \"snowman\",\n" +
+                "      \"nick\": \"Coolzzz\",\n" +
+                "      \"avatar\": \"https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRJm8UXZ0mYtjv1a48RKkFkdyd4kOWLJB0o_l7GuTS8-q8VF64w\"\n" +
+                "    }\n" +
+                "  }\n" +
+                "  ");
+
+
+        Tweet tweet = new Tweet(object);
+
+        assertNotNull(tweet);
+        assertTrue(tweet.canbeIgnored());
+    }
 
 }

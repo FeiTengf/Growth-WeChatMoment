@@ -14,7 +14,7 @@ public class Comment {
     //content
     String mContent = "";
     //sender
-    UserProfile mSenderProfile = new UserProfile();
+    UserProfile mSender = new UserProfile();
 
     /**
      * Construct an instance through JsonObject, which may from the Internet
@@ -25,15 +25,15 @@ public class Comment {
      */
     public Comment(JSONObject jsonObject) throws JSONException {
         mContent = jsonObject.getString(JSON_CONTENT);
-        mSenderProfile = new UserProfile(jsonObject.getJSONObject(JSON_SENDER));
+        mSender = new UserProfile(jsonObject.getJSONObject(JSON_SENDER));
     }
 
     public String getContent() {
         return mContent;
     }
 
-    public UserProfile getSenderProfile() {
-        return mSenderProfile;
+    public UserProfile getSender() {
+        return mSender;
     }
 
     /**
@@ -42,7 +42,7 @@ public class Comment {
      * @return
      */
     public boolean isEmpty() {
-        return mContent.isEmpty() && mSenderProfile.isEmpty();
+        return mContent.isEmpty() && mSender.isEmpty();
     }
 
 }

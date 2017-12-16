@@ -3,7 +3,6 @@ package feiteng.test.wechatmoment.widgets;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatImageView;
@@ -11,11 +10,14 @@ import android.util.AttributeSet;
 import android.util.LruCache;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+
+import feiteng.test.wechatmoment.R;
 
 /**
+ * Loading images from internet and show it on the view.
+ * If there is something failed during this process,
+ * this view will display an default connection_failed.png instead.
+ * <p>
  * Created by inthe on 2017/12/16.
  */
 
@@ -25,12 +27,20 @@ public class LoaderImageView extends AppCompatImageView {
 
     private String mUrl;
     private String TAG = "LoaderImageView";
-    private static final int MSG_DOWNLOAD_COMPLETE = 1;
+
+    private static final int MSG_DOWNLOAD_SUCCESS = 1;
+    private static final int MSG_DOWNLOAD_FAILED = 2;
+
+    //TODO fix the potential memory leak
     private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            if (msg.what == MSG_DOWNLOAD_COMPLETE) {
+            if (msg.what == MSG_DOWNLOAD_SUCCESS) {
                 LoaderImageView.this.setImageDrawable((Drawable) msg.obj);
+            } else if (msg.what == MSG_DOWNLOAD_FAILED) {
+                // use getDrawable at API.14
+                LoaderImageView.this.setImageDrawable(getContext().getResources().
+                        getDrawable(R.drawable.connection_failed));
             }
         }
     };
@@ -57,16 +67,18 @@ public class LoaderImageView extends AppCompatImageView {
             public void run() {
                 Drawable drawable = LoadImageFromUrl(mUrl);
                 //skip null objects
+                Message message = mHandler.obtainMessage();
                 if (drawable != null) {
                     //store images in an lrucache
                     sImageCache.put(mUrl, drawable);
 
 
-                    Message message = mHandler.obtainMessage();
-                    message.what = MSG_DOWNLOAD_COMPLETE;
+                    message.what = MSG_DOWNLOAD_SUCCESS;
                     message.obj = drawable;
-                    mHandler.sendMessage(message);
+                } else {
+                    message.what = MSG_DOWNLOAD_FAILED;
                 }
+                mHandler.sendMessage(message);
             }
         }.start();
     }

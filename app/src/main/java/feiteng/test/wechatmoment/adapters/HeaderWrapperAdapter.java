@@ -1,12 +1,9 @@
 package feiteng.test.wechatmoment.adapters;
 
-import android.preference.PreferenceActivity;
-import android.provider.ContactsContract;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.HeaderViewListAdapter;
 import android.widget.TextView;
 
 import feiteng.test.wechatmoment.R;
@@ -84,6 +81,7 @@ public class HeaderWrapperAdapter extends RecyclerView.Adapter<RecyclerView.View
     /**
      * Set Usr profile and avatar and name to mHeaderView
      * The Recycler's header view will be updated
+     * //TODO save images on the disk to improve the experience
      *
      * @param profile
      */
@@ -94,7 +92,8 @@ public class HeaderWrapperAdapter extends RecyclerView.Adapter<RecyclerView.View
             LoaderImageView avatarView = (LoaderImageView) mHeaderView.findViewById(R.id.avatar_imageview);
 
             nameView.setText(profile.getUsrName());
-            profileView.loadUrl(profile.getAvatarUrl());
+            //FIXME check and use the real profile
+            profileView.loadUrl(profile.getProfileUrl());
             avatarView.loadUrl(profile.getAvatarUrl());
         }
     }

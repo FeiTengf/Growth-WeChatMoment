@@ -9,14 +9,15 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import feiteng.test.wechatmoment.adapters.HeaderWrapperAdapter;
 import feiteng.test.wechatmoment.adapters.MyMomentItemRecyclerViewAdapter;
-import feiteng.test.wechatmoment.items.DummyContent;
+import feiteng.test.wechatmoment.items.Tweet;
 import feiteng.test.wechatmoment.items.UserProfile;
 import feiteng.test.wechatmoment.utils.MomentFetcher;
-import feiteng.test.wechatmoment.widgets.LoaderImageView;
 
 /**
  * A fragment representing a list of Items.
@@ -28,14 +29,19 @@ public class MomentItemsFragment extends Fragment {
     private static final String TAG = "MomentItemsFragment";
 
     private static final int COLUMN_COUNT = 1;
-    private MyMomentItemRecyclerViewAdapter mWrappedAdapter = new MyMomentItemRecyclerViewAdapter(DummyContent.ITEMS);
+    //An list to stor all the tweets
+    private List<Tweet> mCurrentTweetList = new ArrayList<Tweet>();
+    //An arrayLit to hold tweet on the recycle view
+    private List<Tweet> mAllTweetList = new ArrayList<Tweet>();
+
+    //adapter that holds tweets
+    private MyMomentItemRecyclerViewAdapter mWrappedAdapter = new MyMomentItemRecyclerViewAdapter(mCurrentTweetList);
     //use this adapter to add a headerview
-    private HeaderWrapperAdapter mAdapter = new HeaderWrapperAdapter(new MyMomentItemRecyclerViewAdapter(DummyContent.ITEMS));
+    private HeaderWrapperAdapter mAdapter = new HeaderWrapperAdapter(mWrappedAdapter);
     private RecyclerView mRecyclerView;
-    private View mHeaderView;
-    //fetch all json objects first
-    private FetchProfileTask mFetchAllTask;
-    private UserProfile mProfile;
+    //fetch all json objects
+    private FetchProfileTask mFetchUsrTask;
+    private FetchTweetTask mFetchTweetTask;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -64,18 +70,22 @@ public class MomentItemsFragment extends Fragment {
             Context context = view.getContext();
             mRecyclerView = (RecyclerView) view;
             mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-            mHeaderView = inflater.inflate(R.layout.view_headerview, null);
             mRecyclerView.setAdapter(mAdapter);
         }
 
         //starting fetching json objects & imgs
-        mFetchAllTask = new FetchProfileTask();
-        mFetchAllTask.execute();
+        mFetchUsrTask = new FetchProfileTask();
+        mFetchUsrTask.execute();
+        //Fetch all tweets
+        mFetchTweetTask = new FetchTweetTask();
+        mFetchTweetTask.execute();
 
         return view;
     }
 
-
+    /**
+     * Get usr info at the beginning.
+     */
     private class FetchProfileTask extends AsyncTask<Void, Void, UserProfile> {
 
         @Override
@@ -91,7 +101,39 @@ public class MomentItemsFragment extends Fragment {
                 return;
             }
 
-            mAdapter.setUsrProfile(userProfile);
+            if (isVisible()) {
+                mAdapter.setUsrProfile(userProfile);
+            }
+        }
+    }
+
+    /**
+     * Refresh or init tweets. We just show 5 of them at the very beginning.
+     */
+    private class FetchTweetTask extends AsyncTask<Void, Void, List<Tweet>> {
+
+        @Override
+        protected List<Tweet> doInBackground(Void... params) {
+            MomentFetcher fetcher = new MomentFetcher();
+            return fetcher.fetchTweets();
+        }
+
+        @Override
+        protected void onPostExecute(List<Tweet> tweets) {
+            super.onPostExecute(tweets);
+            if (tweets == null) {
+                return;
+            }
+            //Work with asyncTask so these list are thread-safe
+            if (isVisible()) {
+                mAllTweetList.clear();
+                mAllTweetList.addAll(tweets);
+                //copy first 5 to current list at the very beginning
+                List<Tweet> subList = mAllTweetList.subList(0, Math.min(5, mAllTweetList.size()));
+                mCurrentTweetList.clear();
+                mCurrentTweetList.addAll(subList);
+                mWrappedAdapter.notifyDataSetChanged();
+            }
         }
     }
 
