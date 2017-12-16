@@ -5,13 +5,17 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
+import feiteng.test.wechatmoment.items.Tweet;
 import feiteng.test.wechatmoment.items.UserProfile;
 
 /**
@@ -28,12 +32,49 @@ public class MomentFetcher {
     private static final String USR_URL = "http://thoughtworks-ios.herokuapp.com/user/jsmith";
     private static final String TWEETS_URL = "http://thoughtworks-ios.herokuapp.com/user/jsmith/tweets";
 
+    /**
+     * get usr info from <code>USR_URL</code>
+     *
+     * @return the usr profile or null, when json or connection failed.
+     */
     public UserProfile fetchUsr() {
         try {
             String jsonString = getUrlString(USR_URL);
             JSONObject object = new JSONObject(jsonString);
             UserProfile profile = new UserProfile(object);
             return profile;
+        } catch (IOException e) {
+            Log.e(TAG, "Failed to fetch items", e);
+        } catch (JSONException e) {
+            Log.e(TAG, "Failed to fetch items Json", e);
+        }
+
+        return null;
+    }
+
+    /**
+     * get tweet info from <code>TWEETS_URL</code>
+     *
+     * @return the tweet list or null, when json or connection failed.
+     */
+    public List<Tweet> fetchTweets() {
+        try {
+            String jsonString = getUrlString(TWEETS_URL);
+            List<Tweet> ret = new ArrayList<Tweet>();
+            JSONArray array = (JSONArray) new JSONTokener(jsonString).nextValue();
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject obj = array.getJSONObject(i);
+                String json = obj.toString();
+                try {
+                    Tweet item = new Tweet(array.getJSONObject(i));
+                    ret.add(item);
+
+                } catch (JSONException e) {
+                    Log.w(TAG, "invalid tweet");
+                }
+            }
+
+            return ret;
         } catch (IOException e) {
             Log.e(TAG, "Failed to fetch items", e);
         } catch (JSONException e) {
@@ -82,8 +123,8 @@ public class MomentFetcher {
      * If there is some kinds of error in connection, an Empty String will be returned
      *
      * @param urlSpec the Url you want to get
-     * @return the http content as String, which may be empty
-     * @throws IOException something nasty happened during this connection
+     * @return the http content as String, which may be empty if anything was failed
+     * @throws IOException something failed during this connection
      */
     public String getUrlString(String urlSpec) throws IOException {
         byte[] bytes = getUrlBytes(urlSpec);

@@ -1,7 +1,5 @@
 package feiteng.test.wechatmoment.items;
 
-import android.graphics.Bitmap;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -13,27 +11,37 @@ import org.json.JSONObject;
 public class UserProfile {
 
 
-    String mUsrName;
-    String mNickName;
-    String mProfileUrl;
-    String mAvatarUrl;
+    public static final String JSON_USERNAME = "username";
+    public static final String JSON_NICKNAME = "nick";
+    public static final String JSON_AVATAR = "avatar";
+    public static final String JSON_PROFILE_IMG = "profile-image";
+    String mUsrName = "";
+    String mNickName = "";
+    String mProfileUrl = "";
+    String mAvatarUrl = "";
+
+    //create an empty profile
+    public UserProfile() {
+
+    }
+
 
     /**
      * Construct an instance through JsonObject, which may from the Internet
-     * Please be aware that <code>mProfileUrl</code> may be null, because it's in a comment
-     * Here  we catch that exception in this constructor
+     *    Please be aware that <code>mProfileUrl</code> may be empty, because it's can be used in a tweet
+     *    , or as content. So we allow JSON_PROFILE_IMG to be null
      *
      * @param jsonObject the json to be resolved.
      * @throws JSONException if anything goes wrong
      */
     public UserProfile(JSONObject jsonObject) throws JSONException {
-        mUsrName = jsonObject.getString("username");
-        mNickName = jsonObject.getString("nick");
-        mAvatarUrl = jsonObject.getString("avatar");
+        mUsrName = jsonObject.getString(JSON_USERNAME);
+        mNickName = jsonObject.getString(JSON_NICKNAME);
+        mAvatarUrl = jsonObject.getString(JSON_AVATAR);
         try {
-            mProfileUrl = jsonObject.getString("profile-image");
+            mProfileUrl = jsonObject.getString(JSON_PROFILE_IMG);
         } catch (JSONException e) {
-            mProfileUrl = null;
+            mProfileUrl = "";
         }
     }
 
@@ -41,32 +49,25 @@ public class UserProfile {
         return mUsrName;
     }
 
-    public void setUsrName(String mUsrName) {
-        this.mUsrName = mUsrName;
-    }
-
     public String getNickName() {
         return mNickName;
-    }
-
-    public void setNickName(String mNickName) {
-        this.mNickName = mNickName;
     }
 
     public String getProfileUrl() {
         return mProfileUrl;
     }
 
-    public void setProfileUrl(String mProfileUrl) {
-        this.mProfileUrl = mProfileUrl;
-    }
-
     public String getAvatarUrl() {
         return mAvatarUrl;
     }
 
-    public void setAvatarUrl(String mAvatarUrl) {
-        this.mAvatarUrl = mAvatarUrl;
+    /**
+     * Whether this usrProfile is an Empty one
+     *
+     * @return All usr info is Empty
+     */
+    public boolean isEmpty() {
+        return mUsrName.isEmpty() && mNickName.isEmpty() && mProfileUrl.isEmpty() && mAvatarUrl.isEmpty();
     }
 
     @Override

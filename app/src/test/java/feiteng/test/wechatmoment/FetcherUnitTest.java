@@ -2,19 +2,15 @@ package feiteng.test.wechatmoment;
 
 import org.junit.Test;
 
-import java.io.IOException;
-
-import feiteng.test.wechatmoment.items.UserProfile;
 import feiteng.test.wechatmoment.utils.MomentFetcher;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Example local unit test, which will execute on the development machine (host).
+ * Test some function of MomentFetcher
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
@@ -40,9 +36,13 @@ public class FetcherUnitTest {
         assertNotNull(testBing);
 
 
-        String testThoughtworks = fetcher.getUrlString("http://thoughtworks-ios.herokuapp.com/user/jsmith");
-        assertNotNull(testThoughtworks);
-        assertFalse(testThoughtworks.isEmpty());
+        String testProfile = fetcher.getUrlString("http://thoughtworks-ios.herokuapp.com/user/jsmith");
+        assertNotNull(testProfile);
+        assertFalse(testProfile.isEmpty());
+
+        String testTweets = fetcher.getUrlString("http://thoughtworks-ios.herokuapp.com/user/jsmith/tweets");
+        assertNotNull(testTweets);
+        assertFalse(testTweets.isEmpty());
 
         String testEmpty = fetcher.getUrlString("https://www.cnblogs.com/ddd.html");
         assertNotNull(testEmpty);

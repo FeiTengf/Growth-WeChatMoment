@@ -10,11 +10,10 @@ import org.junit.runner.RunWith;
 
 import feiteng.test.wechatmoment.widgets.LoaderImageView;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * Instrumentation test, which will execute on an Android device.
+ * Test LoderImageView
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
