@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_margin="0dp"
+    android:background="@drawable/comments_background">
 
-    <feiteng.test.wechatmoment.widgets.LoaderImageView
-        android:id="@+id/tweet_imageitem_imageview"
+    <TextView
+        android:id="@+id/tweet_comment_textview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="2dp"
-        android:layout_marginTop="2dp"
+        android:layout_margin="0dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
         android:scaleType="fitStart" />
 </LinearLayout>

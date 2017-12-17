@@ -1,7 +1,9 @@
 package feiteng.test.wechatmoment.adapters;
 
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +14,7 @@ import java.util.List;
 
 import feiteng.test.wechatmoment.R;
 import feiteng.test.wechatmoment.items.Tweet;
+import feiteng.test.wechatmoment.utils.StringUtl;
 import feiteng.test.wechatmoment.widgets.LoaderImageView;
 
 /**
@@ -37,18 +40,26 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        //hide or show items by content and images
-        setItemVisibility(holder);
-
-        holder.mSenderNameView.setText(holder.mItem.getSender().getUsrName());
-        holder.mContentView.setText(holder.mItem.getContent());
-        holder.mAvatarView.loadUrl(holder.mItem.getSender().getAvatarUrl(), false);
+        Tweet tweet = holder.mItem;
+        String usrName = tweet.getSender().getUsrName();
+        holder.mSenderNameView.setText(Html.fromHtml(StringUtl.getColoredName(usrName)));
+        holder.mContentView.setText(tweet.getContent());
+        holder.mAvatarView.loadUrl(tweet.getSender().getAvatarUrl(), false);
 
         holder.mImagesView.setAdapter(null);
-        if (!holder.mItem.getImages().isEmpty()) {
-            TweetImagesAdapter adapter = new TweetImagesAdapter(holder.mItem.getImages());
+        if (!tweet.getImages().isEmpty()) {
+            TweetImagesAdapter adapter = new TweetImagesAdapter(tweet.getImages());
             holder.mImagesView.setAdapter(adapter);
         }
+
+        holder.mCommentsView.setAdapter(null);
+        if (!tweet.getComments().isEmpty()) {
+            TweetCommentsAdapter adapter = new TweetCommentsAdapter(tweet.getComments());
+            holder.mCommentsView.setAdapter(adapter);
+        }
+
+        //hide or show items by content and images
+        setItemVisibility(holder);
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,6 +76,28 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
      * @param holder The holder we want to change
      */
     private void setItemVisibility(ViewHolder holder) {
+
+        //content view
+        if (holder.mItem.getContent().isEmpty()) {
+            holder.mContentView.setVisibility(View.GONE);
+        } else {
+            holder.mContentView.setVisibility(View.VISIBLE);
+        }
+
+        //imageview
+        if (holder.mItem.getImages().isEmpty()) {
+            holder.mImagesView.setVisibility(View.GONE);
+        } else {
+            holder.mImagesView.setVisibility(View.VISIBLE);
+        }
+
+        //comment
+        if (holder.mItem.getImages().isEmpty()) {
+            holder.mCommentsView.setVisibility(View.GONE);
+        } else {
+            holder.mCommentsView.setVisibility(View.VISIBLE);
+        }
+
         //set its GONE is not enough, we must set params explicitly for recycler view
         RecyclerView.LayoutParams param = (RecyclerView.LayoutParams) holder.mView.getLayoutParams();
         //hide all
@@ -78,21 +111,6 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
             holder.mView.setVisibility(View.VISIBLE);
         }
         holder.mView.setLayoutParams(param);
-
-        //hide content view
-        if (holder.mItem.getContent().isEmpty()) {
-            holder.mContentView.setVisibility(View.GONE);
-        } else {
-            holder.mContentView.setVisibility(View.VISIBLE);
-        }
-
-        //hide imageview
-        if (holder.mItem.getImages().isEmpty()) {
-            holder.mImagesView.setVisibility(View.GONE);
-        } else {
-            holder.mImagesView.setVisibility(View.VISIBLE);
-        }
-
     }
 
     @Override
@@ -106,6 +124,7 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
         final TextView mSenderNameView;
         final TextView mContentView;
         final RecyclerView mImagesView;
+        final RecyclerView mCommentsView;
 
         Tweet mItem;
 
@@ -116,8 +135,12 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
             mSenderNameView = (TextView) view.findViewById(R.id.tweet_sender_name_textview);
             mContentView = (TextView) view.findViewById(R.id.tweet_content_textview);
             mImagesView = (RecyclerView) view.findViewById(R.id.tweet_images_recyclerview);
-            GridLayoutManager layoutManager = new GridLayoutManager(view.getContext(), 3);
-            mImagesView.setLayoutManager(layoutManager);
+            mCommentsView = (RecyclerView) view.findViewById(R.id.tweet_comments_recyclerview);
+
+            GridLayoutManager imageManager = new GridLayoutManager(view.getContext(), 3);
+            mImagesView.setLayoutManager(imageManager);
+            LinearLayoutManager commentManager = new LinearLayoutManager(view.getContext());
+            mCommentsView.setLayoutManager(commentManager);
         }
 
         @Override

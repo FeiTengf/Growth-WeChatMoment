@@ -72,6 +72,7 @@ public class MomentItemsFragment extends Fragment {
 
         // Set the mWrapperAdapter
         mRecyclerManager = new LinearLayoutManager(context);
+        mRecyclerManager.setAutoMeasureEnabled(true);
         mRecyclerView.setLayoutManager(mRecyclerManager);
         mRecyclerView.setAdapter(mWrapperAdapter);
 
