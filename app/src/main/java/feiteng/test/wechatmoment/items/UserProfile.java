@@ -28,8 +28,8 @@ public class UserProfile {
 
     /**
      * Construct an instance through JsonObject, which may from the Internet
-     *    Please be aware that <code>mProfileUrl</code> may be empty, because it's can be used in a tweet
-     *    , or as content. So we allow JSON_PROFILE_IMG to be null
+     * Please be aware that <code>mProfileUrl</code> may be empty, because it's can be used in a tweet
+     * , or as content. So we allow JSON_PROFILE_IMG to be null
      *
      * @param jsonObject the json to be resolved.
      * @throws JSONException if anything goes wrong

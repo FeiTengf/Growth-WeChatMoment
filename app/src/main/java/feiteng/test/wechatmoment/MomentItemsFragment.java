@@ -81,12 +81,17 @@ public class MomentItemsFragment extends Fragment {
             public void onScrollStateChanged(RecyclerView recyclerView,
                                              int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
+                //all tweets has already shown in list
+                if (!hasMoreTweets()) {
+                    return;
+                }
                 int lastVisPos = mRecyclerManager.findLastVisibleItemPosition();
-                if (newState == RecyclerView.SCROLL_STATE_IDLE
-                        && lastVisPos + 1 == mWrapperAdapter.getItemCount()) {
+                boolean atBottom = lastVisPos + 1 == mWrapperAdapter.getItemCount();
+                if (newState == RecyclerView.SCROLL_STATE_IDLE && atBottom) {
                     mRefreshWidget.setRefreshing(true);
                     appendNextTweets(TWEETS_IN_ONE_PAGE);
                     mWrapperAdapter.notifyDataSetChanged();
+                    //we will load images later, but now just keep the progressbar satisfied.
                     mRefreshWidget.setRefreshing(false);
                 }
             }
@@ -123,6 +128,10 @@ public class MomentItemsFragment extends Fragment {
         super.onDestroyView();
     }
 
+    /**
+     * load first <code>TWEETS_IN_ONE_PAGE</code> of tweet
+     * load user's profile at the same time.
+     */
     private void initTweetAndProfile() {
         //starting fetching json objects & imgs
         FetchProfileTask fetchUrlTask = new FetchProfileTask();
@@ -133,11 +142,23 @@ public class MomentItemsFragment extends Fragment {
         fetchTweetTask.execute();
     }
 
+    /**
+     * Add some more tweets to current tweets.
+     *
+     * @param count the count of tweets tobe added
+     */
     private void appendNextTweets(int count) {
         int start = mCurrentTweetList.size();
         int end = start + count;
         List<Tweet> subList = mAllTweetList.subList(start, Math.min(end, mAllTweetList.size()));
         mCurrentTweetList.addAll(subList);
+    }
+
+    /**
+     * Whether we have more tweets to display.
+     */
+    private boolean hasMoreTweets() {
+        return mCurrentTweetList.size() < mAllTweetList.size();
     }
 
     /**
