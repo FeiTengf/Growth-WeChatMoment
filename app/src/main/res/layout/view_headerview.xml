@@ -24,7 +24,8 @@
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:srcCompat="@drawable/white_frame" />
+        app:srcCompat="@drawable/white_frame"
+        android:layout_marginRight="8dp" />
 
     <feiteng.test.wechatmoment.widgets.LoaderImageView
         android:id="@+id/avatar_imageview"

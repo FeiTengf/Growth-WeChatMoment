@@ -34,7 +34,9 @@ public class MyMomentItemRecyclerViewAdapter extends RecyclerView.Adapter<MyMome
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
         if (holder.mItem.canbeIgnored()) {
-            holder.mView.setVisibility(View.GONE);
+            holder.mView.setVisibility(View.INVISIBLE);
+        } else {
+            holder.mView.setVisibility(View.VISIBLE);
         }
 
         holder.mIdView.setText(mValues.get(position).getSender().toString());

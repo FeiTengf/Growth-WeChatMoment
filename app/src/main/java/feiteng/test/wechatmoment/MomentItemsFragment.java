@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -28,20 +29,20 @@ public class MomentItemsFragment extends Fragment {
 
     private static final String TAG = "MomentItemsFragment";
 
-    private static final int COLUMN_COUNT = 1;
+    //5 tweets in one page
+    private static final int TWEETS_IN_ONE_PAGE = 5;
     //An list to stor all the tweets
     private List<Tweet> mCurrentTweetList = new ArrayList<Tweet>();
     //An arrayLit to hold tweet on the recycle view
     private List<Tweet> mAllTweetList = new ArrayList<Tweet>();
 
     //adapter that holds tweets
-    private MyMomentItemRecyclerViewAdapter mWrappedAdapter = new MyMomentItemRecyclerViewAdapter(mCurrentTweetList);
+    private MyMomentItemRecyclerViewAdapter mTweetAdapter = new MyMomentItemRecyclerViewAdapter(mCurrentTweetList);
     //use this adapter to add a headerview
-    private HeaderWrapperAdapter mAdapter = new HeaderWrapperAdapter(mWrappedAdapter);
+    private HeaderWrapperAdapter mWrapperAdapter = new HeaderWrapperAdapter(mTweetAdapter);
     private RecyclerView mRecyclerView;
-    //fetch all json objects
-    private FetchProfileTask mFetchUsrTask;
-    private FetchTweetTask mFetchTweetTask;
+    private SwipeRefreshLayout mRefreshWidget;
+    private LinearLayoutManager mRecyclerManager;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -65,22 +66,78 @@ public class MomentItemsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_momentitem_list, container, false);
 
-        // Set the mAdapter
-        if (view instanceof RecyclerView) {
-            Context context = view.getContext();
-            mRecyclerView = (RecyclerView) view;
-            mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-            mRecyclerView.setAdapter(mAdapter);
-        }
+        Context context = view.getContext();
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.recycle_list);
+        mRefreshWidget = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh_widget);
 
-        //starting fetching json objects & imgs
-        mFetchUsrTask = new FetchProfileTask();
-        mFetchUsrTask.execute();
-        //Fetch all tweets
-        mFetchTweetTask = new FetchTweetTask();
-        mFetchTweetTask.execute();
+        // Set the mWrapperAdapter
+        mRecyclerManager = new LinearLayoutManager(context);
+        mRecyclerView.setLayoutManager(mRecyclerManager);
+        mRecyclerView.setAdapter(mWrapperAdapter);
+
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView,
+                                             int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                int lastVisPos = mRecyclerManager.findLastVisibleItemPosition();
+                if (newState == RecyclerView.SCROLL_STATE_IDLE
+                        && lastVisPos + 1 == mWrapperAdapter.getItemCount()) {
+                    mRefreshWidget.setRefreshing(true);
+                    appendNextTweets(TWEETS_IN_ONE_PAGE);
+                    mWrapperAdapter.notifyDataSetChanged();
+                    mRefreshWidget.setRefreshing(false);
+                }
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+            }
+
+        });
+
+        //fetch for the first time
+        initTweetAndProfile();
+
+        //setup refresh widget
+        mRefreshWidget.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener()
+
+        {
+            @Override
+            public void onRefresh() {
+                //Fetch all tweets
+                FetchTweetTask fetchTweetTask = new FetchTweetTask();
+                fetchTweetTask.execute();
+            }
+        });
+
 
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+    }
+
+    private void initTweetAndProfile() {
+        //starting fetching json objects & imgs
+        FetchProfileTask fetchUrlTask = new FetchProfileTask();
+        fetchUrlTask.execute();
+
+        //Fetch all tweets
+        FetchTweetTask fetchTweetTask = new FetchTweetTask();
+        fetchTweetTask.execute();
+    }
+
+    private void appendNextTweets(int count) {
+        int start = mCurrentTweetList.size();
+        int end = start + count;
+        List<Tweet> subList = mAllTweetList.subList(start, Math.min(end, mAllTweetList.size()));
+        mCurrentTweetList.addAll(subList);
     }
 
     /**
@@ -102,7 +159,7 @@ public class MomentItemsFragment extends Fragment {
             }
 
             if (isVisible()) {
-                mAdapter.setUsrProfile(userProfile);
+                mWrapperAdapter.setUsrProfile(userProfile);
             }
         }
     }
@@ -127,12 +184,13 @@ public class MomentItemsFragment extends Fragment {
             //Work with asyncTask so these list are thread-safe
             if (isVisible()) {
                 mAllTweetList.clear();
+                mCurrentTweetList.clear();
                 mAllTweetList.addAll(tweets);
                 //copy first 5 to current list at the very beginning
-                List<Tweet> subList = mAllTweetList.subList(0, Math.min(5, mAllTweetList.size()));
-                mCurrentTweetList.clear();
-                mCurrentTweetList.addAll(subList);
-                mWrappedAdapter.notifyDataSetChanged();
+                appendNextTweets(TWEETS_IN_ONE_PAGE);
+
+                mWrapperAdapter.notifyDataSetChanged();
+                mRefreshWidget.setRefreshing(false);
             }
         }
     }
