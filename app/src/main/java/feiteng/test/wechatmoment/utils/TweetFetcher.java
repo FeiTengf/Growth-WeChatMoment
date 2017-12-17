@@ -26,11 +26,13 @@ import feiteng.test.wechatmoment.items.UserProfile;
  * Created by tengf on 2017/12/16.
  */
 
-public class MomentFetcher {
-    private static final String TAG = "MomentFetcher";
+public class TweetFetcher {
+    private static final String TAG = "TweetFetcher";
 
     private static final String USR_URL = "http://thoughtworks-ios.herokuapp.com/user/jsmith";
     private static final String TWEETS_URL = "http://thoughtworks-ios.herokuapp.com/user/jsmith/tweets";
+    //10s
+    private static final int TIME_OUT = 10000;
 
     /**
      * get usr info from <code>USR_URL</code>
@@ -94,11 +96,14 @@ public class MomentFetcher {
     public byte[] getUrlBytes(String urlSpec) throws IOException {
         URL url = new URL(urlSpec);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setConnectTimeout(TIME_OUT);
+        connection.setReadTimeout(TIME_OUT);
 
         try {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
 
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
             if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                Log.e(TAG, "connection failed. response: " + connection.getResponseCode());
                 return null;
             }
 

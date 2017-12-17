@@ -35,7 +35,7 @@ public class HeaderWrapperAdapter extends RecyclerView.Adapter<RecyclerView.View
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == HEADER_TYPE) {
             mHeaderView = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.view_headerview, parent, false);
+                    .inflate(R.layout.tweet_headerview, parent, false);
             return new ViewHolder(mHeaderView);
         }
         return mInnerAdapter.onCreateViewHolder(parent, viewType);

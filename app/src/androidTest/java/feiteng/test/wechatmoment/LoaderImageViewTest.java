@@ -20,7 +20,7 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(AndroidJUnit4.class)
 public class LoaderImageViewTest {
     @Test
-    public void test_load_drawable() throws Exception {
+    public void test_load_bitmap() throws Exception {
         // Context of the app under test.
         String TEST_AVATAR = "http://info.thoughtworks.com/rs/thoughtworks2/images/glyph_badge.png";
         //this test would faile
@@ -31,7 +31,7 @@ public class LoaderImageViewTest {
         LoaderImageView view = new LoaderImageView(appContext);
         view.loadUrl(TEST_AVATAR);
         //wait for downloading
-        Thread.sleep(50000);
+        Thread.sleep(5000);
         assertNotNull(view.getBackground() != null);
         assertNotNull(LoaderImageView.getImageCache().get(TEST_AVATAR));
     }

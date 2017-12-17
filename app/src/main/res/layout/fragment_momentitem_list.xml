@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/swipe_refresh_widget"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:layout_margin="0dp">
 
     <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -17,7 +18,7 @@
         android:layout_marginRight="0dp"
         app:layoutManager="LinearLayoutManager"
         tools:context="feiteng.test.wechatmoment.MomentItemsFragment"
-        tools:listitem="@layout/fragment_momentitem" />
+        tools:listitem="@layout/tweet_item" />
 
 </android.support.v4.widget.SwipeRefreshLayout>
 

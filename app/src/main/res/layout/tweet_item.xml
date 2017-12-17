@@ -21,36 +21,39 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
         android:layout_marginTop="0dp"
         android:text="name"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.538"
         app:layout_constraintLeft_toRightOf="@+id/tweet_sender_avatar_imageview"
-        app:layout_constraintTop_toTopOf="@+id/tweet_sender_avatar_imageview"
-        app:layout_constraintVertical_bias="0.0"
-        android:layout_marginRight="8dp"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintHorizontal_bias="0.538" />
+        app:layout_constraintTop_toTopOf="@+id/tweet_sender_avatar_imageview"
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/tweet_content_textview"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         android:text="content"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toRightOf="@+id/tweet_sender_avatar_imageview"
-        app:layout_constraintTop_toBottomOf="@+id/tweet_sender_name_textview"
-        android:layout_marginRight="8dp"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintHorizontal_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/tweet_sender_name_textview" />
 
-    <feiteng.test.wechatmoment.widgets.LoaderImageView
-        android:id="@+id/imageview"
-        android:layout_width="wrap_content"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/tweet_images_recyclerview"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toRightOf="@+id/tweet_sender_avatar_imageview"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tweet_content_textview" />
 
 </android.support.constraint.ConstraintLayout>

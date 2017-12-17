@@ -2,7 +2,7 @@ package feiteng.test.wechatmoment;
 
 import org.junit.Test;
 
-import feiteng.test.wechatmoment.utils.MomentFetcher;
+import feiteng.test.wechatmoment.utils.TweetFetcher;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -10,14 +10,14 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Test some function of MomentFetcher
+ * Test some function of TweetFetcher
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 public class FetcherUnitTest {
     @Test
     public void test_fetching_url() throws Exception {
-        MomentFetcher fetcher = new MomentFetcher();
+        TweetFetcher fetcher = new TweetFetcher();
         byte[] testNormal = fetcher.getUrlBytes("http://www.bing.com");
         assertNotNull(testNormal);
 
@@ -31,7 +31,7 @@ public class FetcherUnitTest {
 
     @Test
     public void test_fetching_url_string() throws Exception {
-        MomentFetcher fetcher = new MomentFetcher();
+        TweetFetcher fetcher = new TweetFetcher();
         String testBing = fetcher.getUrlString("http://www.bing.com");
         assertNotNull(testBing);
 

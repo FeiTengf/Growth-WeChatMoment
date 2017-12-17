@@ -1,17 +1,20 @@
 package feiteng.test.wechatmoment.widgets;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.LruCache;
 
-import java.net.URL;
+import java.io.IOException;
 
 import feiteng.test.wechatmoment.R;
+import feiteng.test.wechatmoment.utils.TweetFetcher;
 
 /**
  * Loading images from internet and show it on the view.
@@ -23,7 +26,7 @@ import feiteng.test.wechatmoment.R;
 
 public class LoaderImageView extends AppCompatImageView {
 
-    private static LruCache<String, Drawable> sImageCache = new LruCache<String, Drawable>(20);
+    private static LruCache<String, Bitmap> sImageCache = new LruCache<String, Bitmap>(20);
 
     private String mUrl;
     private String TAG = "LoaderImageView";
@@ -36,9 +39,11 @@ public class LoaderImageView extends AppCompatImageView {
         @Override
         public void handleMessage(Message msg) {
             if (msg.what == MSG_DOWNLOAD_SUCCESS) {
-                LoaderImageView.this.setImageDrawable((Drawable) msg.obj);
+                Log.d(TAG, "LoadImg Success");
+                LoaderImageView.this.setImageBitmap((Bitmap) msg.obj);
             } else if (msg.what == MSG_DOWNLOAD_FAILED) {
                 // use getDrawable at API.14
+                Log.d(TAG, "LoadImg Failed");
                 LoaderImageView.this.setImageDrawable(getContext().getResources().
                         getDrawable(R.drawable.connection_failed));
             }
@@ -56,25 +61,24 @@ public class LoaderImageView extends AppCompatImageView {
 
     public void loadUrl(String urlToBeLoad) {
         mUrl = urlToBeLoad;
-        Drawable cached = sImageCache.get(urlToBeLoad);
+        Bitmap cached = sImageCache.get(urlToBeLoad);
         if (cached != null) {
-            this.setBackgroundDrawable(cached);
+            this.setImageBitmap(cached);
             return;
         }
 
         new Thread() {
             @Override
             public void run() {
-                Drawable drawable = LoadImageFromUrl(mUrl);
-                //skip null objects
+                Log.d(TAG, "Thread ID" + (this.getId()));
+                Bitmap bitmap = LoadImageFromUrl(mUrl);
                 Message message = mHandler.obtainMessage();
-                if (drawable != null) {
+                if (bitmap != null) {
                     //store images in an lrucache
-                    sImageCache.put(mUrl, drawable);
-
+                    sImageCache.put(mUrl, bitmap);
 
                     message.what = MSG_DOWNLOAD_SUCCESS;
-                    message.obj = drawable;
+                    message.obj = bitmap;
                 } else {
                     message.what = MSG_DOWNLOAD_FAILED;
                 }
@@ -89,18 +93,30 @@ public class LoaderImageView extends AppCompatImageView {
      * @param imageUrl the Url that contains a drawable
      * @return a drawable or null, if something goes wrong
      */
-    private Drawable LoadImageFromUrl(String imageUrl) {
+    private Bitmap LoadImageFromUrl(String imageUrl) {
+        Bitmap ret = null;
+        Log.d(TAG, "url:" + imageUrl);
         try {
-            return Drawable.createFromStream(new URL(imageUrl).openStream(),
-                    "src");
-        } catch (Exception e) {
+            byte[] bitmapBytes = new TweetFetcher().getUrlBytes(imageUrl);
+            if (bitmapBytes != null) {
+                ret = BitmapFactory.decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
+            } else {
+                Log.e(TAG, "Load Image failed data is null Url:" + imageUrl);
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "Load Image failed Url:" + imageUrl + "");
             e.printStackTrace();
         }
-        return null;
+        Log.d(TAG, "Bitmap is null? " + (ret == null));
+        return ret;
     }
 
     //return the lrucache for unittest only
-    public static LruCache<String, Drawable> getImageCache() {
+    public static LruCache<String, Bitmap> getImageCache() {
         return sImageCache;
+    }
+
+    public String getUrl() {
+        return mUrl;
     }
 }

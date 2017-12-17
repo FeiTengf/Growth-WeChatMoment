@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import feiteng.test.wechatmoment.adapters.HeaderWrapperAdapter;
-import feiteng.test.wechatmoment.adapters.MyMomentItemRecyclerViewAdapter;
+import feiteng.test.wechatmoment.adapters.TweetAdapter;
 import feiteng.test.wechatmoment.items.Tweet;
 import feiteng.test.wechatmoment.items.UserProfile;
-import feiteng.test.wechatmoment.utils.MomentFetcher;
+import feiteng.test.wechatmoment.utils.TweetFetcher;
 
 /**
  * A fragment representing a list of Items.
@@ -37,7 +37,7 @@ public class MomentItemsFragment extends Fragment {
     private List<Tweet> mAllTweetList = new ArrayList<Tweet>();
 
     //adapter that holds tweets
-    private MyMomentItemRecyclerViewAdapter mTweetAdapter = new MyMomentItemRecyclerViewAdapter(mCurrentTweetList);
+    private TweetAdapter mTweetAdapter = new TweetAdapter(mCurrentTweetList);
     //use this adapter to add a headerview
     private HeaderWrapperAdapter mWrapperAdapter = new HeaderWrapperAdapter(mTweetAdapter);
     private RecyclerView mRecyclerView;
@@ -104,6 +104,8 @@ public class MomentItemsFragment extends Fragment {
 
         });
 
+        //TODO load default profile before downloads
+
         //fetch for the first time
         initTweetAndProfile();
 
@@ -168,13 +170,19 @@ public class MomentItemsFragment extends Fragment {
 
         @Override
         protected UserProfile doInBackground(Void... params) {
-            MomentFetcher fetcher = new MomentFetcher();
-            return fetcher.fetchUsr();
+            TweetFetcher fetcher = new TweetFetcher();
+            UserProfile userProfile = null;
+
+            // fetch profile while it is visible
+            userProfile = fetcher.fetchUsr();
+            return userProfile;
         }
 
         @Override
         protected void onPostExecute(UserProfile userProfile) {
             super.onPostExecute(userProfile);
+
+            //cannot be null
             if (userProfile == null) {
                 return;
             }
@@ -192,18 +200,20 @@ public class MomentItemsFragment extends Fragment {
 
         @Override
         protected List<Tweet> doInBackground(Void... params) {
-            MomentFetcher fetcher = new MomentFetcher();
-            return fetcher.fetchTweets();
+            TweetFetcher fetcher = new TweetFetcher();
+            List<Tweet> tweets = null;
+            // fetch tweets while it is visible
+            tweets = fetcher.fetchTweets();
+            return tweets;
+
         }
 
         @Override
         protected void onPostExecute(List<Tweet> tweets) {
             super.onPostExecute(tweets);
-            if (tweets == null) {
-                return;
-            }
+
             //Work with asyncTask so these list are thread-safe
-            if (isVisible()) {
+            if (isVisible() && tweets != null) {
                 mAllTweetList.clear();
                 mCurrentTweetList.clear();
                 mAllTweetList.addAll(tweets);

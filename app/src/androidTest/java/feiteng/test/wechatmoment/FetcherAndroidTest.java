@@ -9,7 +9,7 @@ import java.util.List;
 
 import feiteng.test.wechatmoment.items.Tweet;
 import feiteng.test.wechatmoment.items.UserProfile;
-import feiteng.test.wechatmoment.utils.MomentFetcher;
+import feiteng.test.wechatmoment.utils.TweetFetcher;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -23,7 +23,7 @@ import static org.junit.Assert.assertNotNull;
 public class FetcherAndroidTest {
     @Test
     public void test_fetch_usrprofile() throws Exception {
-        MomentFetcher fetcher = new MomentFetcher();
+        TweetFetcher fetcher = new TweetFetcher();
         UserProfile profile = fetcher.fetchUsr();
         assertNotNull(profile);
 
@@ -36,12 +36,12 @@ public class FetcherAndroidTest {
 
     @Test
     public void test_fetch_tweets() throws Exception {
-        MomentFetcher fetcher = new MomentFetcher();
+        TweetFetcher fetcher = new TweetFetcher();
         List<Tweet> tweets = fetcher.fetchTweets();
 
         // check details with browser's result
         assertNotNull(tweets);
-        assertEquals(15, tweets.size());
+        assertEquals(17, tweets.size());
 
     }
 }
