@@ -93,8 +93,8 @@ public class HeaderWrapperAdapter extends RecyclerView.Adapter<RecyclerView.View
 
             nameView.setText(profile.getUsrName());
             //FIXME check and use the real profile
-            profileView.loadUrl(profile.getProfileUrl());
-            avatarView.loadUrl(profile.getAvatarUrl());
+            profileView.loadUrl(profile.getProfileUrl(), false);
+            avatarView.loadUrl(profile.getAvatarUrl(), true);
         }
     }
 

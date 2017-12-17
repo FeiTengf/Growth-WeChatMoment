@@ -3,6 +3,7 @@ package feiteng.test.wechatmoment.widgets;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
@@ -26,10 +27,12 @@ import feiteng.test.wechatmoment.utils.TweetFetcher;
 
 public class LoaderImageView extends AppCompatImageView {
 
-    private static LruCache<String, Bitmap> sImageCache = new LruCache<String, Bitmap>(20);
+    private static LruCache<String, Bitmap> sImageCache = new LruCache<String, Bitmap>(40);
 
     private String mUrl;
     private String TAG = "LoaderImageView";
+    private boolean useCache = false;
+    private Object mLock = new Object();
 
     private static final int MSG_DOWNLOAD_SUCCESS = 1;
     private static final int MSG_DOWNLOAD_FAILED = 2;
@@ -44,8 +47,8 @@ public class LoaderImageView extends AppCompatImageView {
             } else if (msg.what == MSG_DOWNLOAD_FAILED) {
                 // use getDrawable at API.14
                 Log.d(TAG, "LoadImg Failed");
-                LoaderImageView.this.setImageDrawable(getContext().getResources().
-                        getDrawable(R.drawable.connection_failed));
+                LoaderImageView.this.setImageBitmap(
+                        BitmapFactory.decodeResource(getResources(), R.drawable.connection_failed));
             }
         }
     };
@@ -59,21 +62,39 @@ public class LoaderImageView extends AppCompatImageView {
     }
 
 
-    public void loadUrl(String urlToBeLoad) {
+    /**
+     * Load image from url, and set that to this view.
+     * isSqure: make the view's height equals its width, for avatar and tweets image
+     *
+     * @param urlToBeLoad
+     * @param isSquare
+     */
+    public void loadUrl(String urlToBeLoad, final boolean isSquare) {
         mUrl = urlToBeLoad;
         Bitmap cached = sImageCache.get(urlToBeLoad);
         if (cached != null) {
+            Log.d(TAG, "get cached img");
+            synchronized (mLock) {
+                useCache = true;
+            }
             this.setImageBitmap(cached);
             return;
         }
 
+        //set an empty image as default
+        this.setImageBitmap(null);
         new Thread() {
             @Override
             public void run() {
+                synchronized (mLock) {
+                    useCache = false;
+                }
                 Log.d(TAG, "Thread ID" + (this.getId()));
-                Bitmap bitmap = LoadImageFromUrl(mUrl);
+                Bitmap bitmap = LoadImageFromUrl(mUrl, isSquare);
                 Message message = mHandler.obtainMessage();
-                if (bitmap != null) {
+
+                //another image has set to this view, so skip loading
+                if (bitmap != null && !useCache) {
                     //store images in an lrucache
                     sImageCache.put(mUrl, bitmap);
 
@@ -93,13 +114,16 @@ public class LoaderImageView extends AppCompatImageView {
      * @param imageUrl the Url that contains a drawable
      * @return a drawable or null, if something goes wrong
      */
-    private Bitmap LoadImageFromUrl(String imageUrl) {
+    private Bitmap LoadImageFromUrl(String imageUrl, boolean isSqure) {
         Bitmap ret = null;
         Log.d(TAG, "url:" + imageUrl);
         try {
             byte[] bitmapBytes = new TweetFetcher().getUrlBytes(imageUrl);
             if (bitmapBytes != null) {
                 ret = BitmapFactory.decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
+                if (ret != null && isSqure) {
+                    ret = getSqureImages(ret);
+                }
             } else {
                 Log.e(TAG, "Load Image failed data is null Url:" + imageUrl);
             }
@@ -109,6 +133,26 @@ public class LoaderImageView extends AppCompatImageView {
         }
         Log.d(TAG, "Bitmap is null? " + (ret == null));
         return ret;
+    }
+
+    /**
+     * Convert a bitmap, make it width == height
+     *
+     * @param bitmap a squred bitmap.
+     * @return
+     */
+    private Bitmap getSqureImages(Bitmap bitmap) {
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        if (width == height) {
+            return bitmap;
+        }
+
+        float scaleWidth = height > width ? ((float) height) / width : 1;
+        float scaleHeight = height > width ? 1 : ((float) width) / height;
+        Matrix matrix = new Matrix();
+        matrix.postScale(scaleWidth, scaleHeight);
+        return Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
     }
 
     //return the lrucache for unittest only

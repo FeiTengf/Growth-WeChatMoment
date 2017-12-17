@@ -42,10 +42,13 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
 
         holder.mSenderNameView.setText(holder.mItem.getSender().getUsrName());
         holder.mContentView.setText(holder.mItem.getContent());
-        holder.mAvatarView.loadUrl(holder.mItem.getSender().getAvatarUrl());
+        holder.mAvatarView.loadUrl(holder.mItem.getSender().getAvatarUrl(), false);
 
-        TweetImagesAdapter adapter = new TweetImagesAdapter(holder.mItem.getImages());
-        holder.mImagesView.setAdapter(adapter);
+        holder.mImagesView.setAdapter(null);
+        if (!holder.mItem.getImages().isEmpty()) {
+            TweetImagesAdapter adapter = new TweetImagesAdapter(holder.mItem.getImages());
+            holder.mImagesView.setAdapter(adapter);
+        }
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,7 +67,7 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
     private void setItemVisibility(ViewHolder holder) {
         //set its GONE is not enough, we must set params explicitly for recycler view
         RecyclerView.LayoutParams param = (RecyclerView.LayoutParams) holder.mView.getLayoutParams();
-
+        //hide all
         if (holder.mItem.canbeIgnored()) {
             param.height = 0;
             param.width = 0;
@@ -74,14 +77,22 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
             param.width = LinearLayout.LayoutParams.MATCH_PARENT;
             holder.mView.setVisibility(View.VISIBLE);
         }
+        holder.mView.setLayoutParams(param);
 
+        //hide content view
         if (holder.mItem.getContent().isEmpty()) {
             holder.mContentView.setVisibility(View.GONE);
         } else {
             holder.mContentView.setVisibility(View.VISIBLE);
         }
 
-        holder.mView.setLayoutParams(param);
+        //hide imageview
+        if (holder.mItem.getImages().isEmpty()) {
+            holder.mImagesView.setVisibility(View.GONE);
+        } else {
+            holder.mImagesView.setVisibility(View.VISIBLE);
+        }
+
     }
 
     @Override

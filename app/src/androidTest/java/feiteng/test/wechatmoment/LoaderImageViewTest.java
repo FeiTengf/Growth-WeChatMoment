@@ -29,7 +29,7 @@ public class LoaderImageViewTest {
         Context appContext = InstrumentationRegistry.getContext();
         Looper.prepare();
         LoaderImageView view = new LoaderImageView(appContext);
-        view.loadUrl(TEST_AVATAR);
+        view.loadUrl(TEST_AVATAR, true);
         //wait for downloading
         Thread.sleep(5000);
         assertNotNull(view.getBackground() != null);

@@ -1,7 +1,6 @@
 package feiteng.test.wechatmoment.adapters;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,9 +19,6 @@ public class TweetImagesAdapter extends RecyclerView.Adapter<TweetImagesAdapter.
     private final String TAG = "Adapter";
 
     public TweetImagesAdapter(List<String> items) {
-        for (int i = 0; i < items.size(); i++) {
-            Log.d("Adapter ", "url is " + items.get(i));
-        }
         mValues = items;
     }
 
@@ -38,7 +34,7 @@ public class TweetImagesAdapter extends RecyclerView.Adapter<TweetImagesAdapter.
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mLoaderView.loadUrl(holder.mItem);
+        holder.mLoaderView.loadUrl(holder.mItem, true);
     }
 
 
