@@ -13,20 +13,20 @@ import java.util.List;
  */
 
 public class Tweet {
-    private static String JSON_CONTENT = "content";
-    private static String JSON_IMAGE = "images";
-    private static String JSON_SENDER = "sender";
-    private static String JSON_COMMENT = "comments";
-    private static String JSON_URL = "url";
+    private static final String JSON_CONTENT = "content";
+    private static final String JSON_IMAGE = "images";
+    private static final String JSON_SENDER = "sender";
+    private static final String JSON_COMMENT = "comments";
+    private static final String JSON_URL = "url";
 
     //content
-    String mContent;
+    private String mContent;
     //images
-    List<String> mImages;
+    private final List<String> mImages;
     //sender
-    UserProfile mSender;
+    private UserProfile mSender;
     //comments 
-    List<Comment> mComments;
+    private final List<Comment> mComments;
 
     /**
      * Construct an instance through JsonObject, which may from the Internet
@@ -43,9 +43,9 @@ public class Tweet {
     public Tweet(JSONObject tweetObj) throws JSONException {
         //adding default tweet
         mContent = "";
-        mImages = new ArrayList<String>();
+        mImages = new ArrayList<>();
         mSender = new UserProfile();
-        mComments = new ArrayList<Comment>();
+        mComments = new ArrayList<>();
 
         //A Tweet must have a valid senderS
         if (!hasSender(tweetObj)) {
@@ -95,7 +95,7 @@ public class Tweet {
      * @param tweetObj jsonObjet that containts a full tweet.
      * @return whether it has a sender
      */
-    boolean hasSender(JSONObject tweetObj) {
+    private boolean hasSender(JSONObject tweetObj) {
         return tweetObj.has(JSON_SENDER);
     }
 

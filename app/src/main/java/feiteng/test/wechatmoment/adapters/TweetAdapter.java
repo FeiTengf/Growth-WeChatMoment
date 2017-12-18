@@ -42,6 +42,7 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
         holder.mItem = mValues.get(position);
         Tweet tweet = holder.mItem;
         String usrName = tweet.getSender().getUsrName();
+        //noinspection deprecation
         holder.mSenderNameView.setText(Html.fromHtml(StringUtl.getColoredName(usrName)));
         holder.mContentView.setText(tweet.getContent());
         holder.mAvatarView.loadUrl(tweet.getSender().getAvatarUrl(), false);

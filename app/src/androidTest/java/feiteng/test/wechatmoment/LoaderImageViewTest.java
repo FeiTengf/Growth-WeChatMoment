@@ -22,9 +22,7 @@ public class LoaderImageViewTest {
     @Test
     public void test_load_bitmap() throws Exception {
         // Context of the app under test.
-        String TEST_AVATAR = "http://info.thoughtworks.com/rs/thoughtworks2/images/glyph_badge.png";
-        //this test would faile
-        //String TEST_PROFILE = "http://img2.findthebest.com/sites/default/files/688/media/images/Mingle_159902_i0.png";
+        String TEST_AVATAR = "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcRDy7HZaHxn15wWj6pXE4uMKAqHTC_uBgBlIzeeQSj2QaGgUzUmHg";
 
         Context appContext = InstrumentationRegistry.getContext();
         Looper.prepare();
@@ -32,7 +30,20 @@ public class LoaderImageViewTest {
         view.loadUrl(TEST_AVATAR, true);
         //wait for downloading
         Thread.sleep(5000);
-        assertNotNull(view.getBackground() != null);
+        assertNotNull(LoaderImageView.getImageCache().get(TEST_AVATAR));
+    }
+
+    @Test
+    public void test_load_bitmap2() throws Exception {
+        // Context of the app under test.
+        String TEST_AVATAR = "http://i.ytimg.com/vi/rGWI7mjmnNk/hqdefault.jpg";
+
+        Context appContext = InstrumentationRegistry.getContext();
+        Looper.prepare();
+        LoaderImageView view = new LoaderImageView(appContext);
+        view.loadUrl(TEST_AVATAR, true);
+        //wait for downloading
+        Thread.sleep(5000);
         assertNotNull(LoaderImageView.getImageCache().get(TEST_AVATAR));
     }
 }

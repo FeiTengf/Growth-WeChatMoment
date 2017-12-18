@@ -43,8 +43,7 @@ public class TweetFetcher {
         try {
             String jsonString = getUrlString(USR_URL);
             JSONObject object = new JSONObject(jsonString);
-            UserProfile profile = new UserProfile(object);
-            return profile;
+            return new UserProfile(object);
         } catch (IOException e) {
             Log.e(TAG, "Failed to fetch items", e);
         } catch (JSONException e) {
@@ -62,11 +61,10 @@ public class TweetFetcher {
     public List<Tweet> fetchTweets() {
         try {
             String jsonString = getUrlString(TWEETS_URL);
-            List<Tweet> ret = new ArrayList<Tweet>();
+            List<Tweet> ret = new ArrayList<>();
             JSONArray array = (JSONArray) new JSONTokener(jsonString).nextValue();
             for (int i = 0; i < array.length(); i++) {
                 JSONObject obj = array.getJSONObject(i);
-                String json = obj.toString();
                 try {
                     Tweet item = new Tweet(array.getJSONObject(i));
                     ret.add(item);
@@ -98,17 +96,18 @@ public class TweetFetcher {
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setConnectTimeout(TIME_OUT);
         connection.setReadTimeout(TIME_OUT);
+        connection.setRequestMethod("GET");
 
         try {
-
             ByteArrayOutputStream out = new ByteArrayOutputStream();
+
             if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
                 Log.e(TAG, "connection failed. response: " + connection.getResponseCode());
                 return null;
             }
 
             InputStream in = connection.getInputStream();
-            int bytesRead = 0;
+            int bytesRead;
             byte[] buffer = new byte[1024];
             while ((bytesRead = in.read(buffer)) > 0) {
                 out.write(buffer, 0, bytesRead);

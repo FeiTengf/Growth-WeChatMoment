@@ -13,6 +13,7 @@ import android.util.Log;
 import android.util.LruCache;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 
 import feiteng.test.wechatmoment.R;
 import feiteng.test.wechatmoment.utils.TweetFetcher;
@@ -27,31 +28,16 @@ import feiteng.test.wechatmoment.utils.TweetFetcher;
 
 public class LoaderImageView extends AppCompatImageView {
 
-    private static LruCache<String, Bitmap> sImageCache = new LruCache<String, Bitmap>(40);
+    private static final LruCache<String, Bitmap> sImageCache = new LruCache<>(40);
 
     private String mUrl;
-    private String TAG = "LoaderImageView";
+    private static final String TAG = "LoaderImageView";
     private boolean useCache = false;
-    private Object mLock = new Object();
+    private final Object mLock = new Object();
 
     private static final int MSG_DOWNLOAD_SUCCESS = 1;
     private static final int MSG_DOWNLOAD_FAILED = 2;
-
-    //TODO fix the potential memory leak
-    private final Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            if (msg.what == MSG_DOWNLOAD_SUCCESS) {
-                Log.d(TAG, "LoadImg Success");
-                LoaderImageView.this.setImageBitmap((Bitmap) msg.obj);
-            } else if (msg.what == MSG_DOWNLOAD_FAILED) {
-                // use getDrawable at API.14
-                Log.d(TAG, "LoadImg Failed");
-                LoaderImageView.this.setImageBitmap(
-                        BitmapFactory.decodeResource(getResources(), R.drawable.connection_failed));
-            }
-        }
-    };
+    MyHandler mHandler = new MyHandler(LoaderImageView.this);
 
     public LoaderImageView(Context context) {
         super(context);
@@ -66,14 +52,13 @@ public class LoaderImageView extends AppCompatImageView {
      * Load image from url, and set that to this view.
      * isSqure: make the view's height equals its width, for avatar and tweets image
      *
-     * @param urlToBeLoad
-     * @param isSquare
+     * @param urlToBeLoad the image's url on this view
+     * @param isSquare    making its with equals its height
      */
     public void loadUrl(String urlToBeLoad, final boolean isSquare) {
         mUrl = urlToBeLoad;
         Bitmap cached = sImageCache.get(urlToBeLoad);
         if (cached != null) {
-            Log.d(TAG, "get cached img");
             synchronized (mLock) {
                 useCache = true;
             }
@@ -89,8 +74,8 @@ public class LoaderImageView extends AppCompatImageView {
                 synchronized (mLock) {
                     useCache = false;
                 }
-                Log.d(TAG, "Thread ID" + (this.getId()));
                 Bitmap bitmap = LoadImageFromUrl(mUrl, isSquare);
+
                 Message message = mHandler.obtainMessage();
 
                 //another image has set to this view, so skip loading
@@ -116,13 +101,12 @@ public class LoaderImageView extends AppCompatImageView {
      */
     private Bitmap LoadImageFromUrl(String imageUrl, boolean isSqure) {
         Bitmap ret = null;
-        Log.d(TAG, "url:" + imageUrl);
         try {
             byte[] bitmapBytes = new TweetFetcher().getUrlBytes(imageUrl);
             if (bitmapBytes != null) {
                 ret = BitmapFactory.decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
                 if (ret != null && isSqure) {
-                    ret = getSqureImages(ret);
+                    ret = getSquareImages(ret);
                 }
             } else {
                 Log.e(TAG, "Load Image failed data is null Url:" + imageUrl);
@@ -131,7 +115,6 @@ public class LoaderImageView extends AppCompatImageView {
             Log.e(TAG, "Load Image failed Url:" + imageUrl + "");
             e.printStackTrace();
         }
-        Log.d(TAG, "Bitmap is null? " + (ret == null));
         return ret;
     }
 
@@ -139,9 +122,9 @@ public class LoaderImageView extends AppCompatImageView {
      * Convert a bitmap, make it width == height
      *
      * @param bitmap a squred bitmap.
-     * @return
+     * @return processed bitmap
      */
-    private Bitmap getSqureImages(Bitmap bitmap) {
+    private Bitmap getSquareImages(Bitmap bitmap) {
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
         if (width == height) {
@@ -162,5 +145,29 @@ public class LoaderImageView extends AppCompatImageView {
 
     public String getUrl() {
         return mUrl;
+    }
+
+
+    private static class MyHandler extends Handler {
+        WeakReference<LoaderImageView> mImageView;
+
+        MyHandler(LoaderImageView view) {
+            mImageView = new WeakReference(view);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            LoaderImageView view = mImageView.get();
+            //check the view first
+            if (view != null) {
+                if (msg.what == MSG_DOWNLOAD_SUCCESS) {
+                    view.setImageBitmap((Bitmap) msg.obj);
+                } else if (msg.what == MSG_DOWNLOAD_FAILED) {
+                    // use getDrawable at API.14
+                    view.setImageBitmap(
+                            BitmapFactory.decodeResource(view.getResources(), R.drawable.connection_failed));
+                }
+            }
+        }
     }
 }

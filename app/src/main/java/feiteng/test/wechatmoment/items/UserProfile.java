@@ -11,17 +11,18 @@ import org.json.JSONObject;
 public class UserProfile {
 
 
-    public static final String JSON_USERNAME = "username";
-    public static final String JSON_NICKNAME = "nick";
-    public static final String JSON_AVATAR = "avatar";
-    public static final String JSON_PROFILE_IMG = "profile-image";
-    String mUsrName = "";
-    String mNickName = "";
-    String mProfileUrl = "";
-    String mAvatarUrl = "";
+    private static final String JSON_USERNAME = "username";
+    private static final String JSON_NICKNAME = "nick";
+    private static final String JSON_AVATAR = "avatar";
+    private static final String JSON_PROFILE_IMG = "profile-image";
+    private String mUsrName = "";
+    private String mNickName = "";
+    private String mProfileUrl = "";
+    private String mAvatarUrl = "";
+    private String mJsonString;
 
     //create an empty profile
-    public UserProfile() {
+    UserProfile() {
 
     }
 
@@ -38,6 +39,8 @@ public class UserProfile {
         mUsrName = jsonObject.getString(JSON_USERNAME);
         mNickName = jsonObject.getString(JSON_NICKNAME);
         mAvatarUrl = jsonObject.getString(JSON_AVATAR);
+        mJsonString = jsonObject.toString();
+
         try {
             mProfileUrl = jsonObject.getString(JSON_PROFILE_IMG);
         } catch (JSONException e) {
@@ -66,8 +69,16 @@ public class UserProfile {
      *
      * @return All usr info is Empty
      */
-    public boolean isEmpty() {
+    boolean isEmpty() {
         return mUsrName.isEmpty() && mNickName.isEmpty() && mProfileUrl.isEmpty() && mAvatarUrl.isEmpty();
+    }
+
+    /**
+     * Get this json string for save.
+     * @return this profile's json as string
+     */
+    public String getJsonString() {
+        return mJsonString;
     }
 
     @Override

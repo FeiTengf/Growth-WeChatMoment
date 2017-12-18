@@ -8,13 +8,13 @@ import org.json.JSONObject;
  */
 
 public class Comment {
-    private static String JSON_CONTENT = "content";
-    private static String JSON_SENDER = "sender";
+    private static final String JSON_CONTENT = "content";
+    private static final String JSON_SENDER = "sender";
 
     //content
-    String mContent = "";
+    private String mContent = "";
     //sender
-    UserProfile mSender = new UserProfile();
+    private UserProfile mSender = new UserProfile();
 
     /**
      * Construct an instance through JsonObject, which may from the Internet
@@ -23,7 +23,7 @@ public class Comment {
      * @param jsonObject the json to be resolved.
      * @throws JSONException if anything goes wrong
      */
-    public Comment(JSONObject jsonObject) throws JSONException {
+    Comment(JSONObject jsonObject) throws JSONException {
         mContent = jsonObject.getString(JSON_CONTENT);
         mSender = new UserProfile(jsonObject.getJSONObject(JSON_SENDER));
     }
@@ -37,9 +37,9 @@ public class Comment {
     }
 
     /**
-     * Check whether this comment is empty
+     * Check whether this comment's content
      *
-     * @return
+     * @return whether is an empty comment
      */
     public boolean isEmpty() {
         return mContent.isEmpty() && mSender.isEmpty();

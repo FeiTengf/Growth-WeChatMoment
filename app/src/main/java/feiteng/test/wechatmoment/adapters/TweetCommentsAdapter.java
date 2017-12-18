@@ -16,12 +16,12 @@ import feiteng.test.wechatmoment.utils.StringUtl;
 /**
  * Adapter for recyclerview of tweetcomments.
  */
-public class TweetCommentsAdapter extends RecyclerView.Adapter<TweetCommentsAdapter.ViewHolder> {
+class TweetCommentsAdapter extends RecyclerView.Adapter<TweetCommentsAdapter.ViewHolder> {
 
     private final List<Comment> mValues;
     private final String TAG = "Adapter";
 
-    public TweetCommentsAdapter(List<Comment> items) {
+    TweetCommentsAdapter(List<Comment> items) {
         mValues = items;
     }
 
@@ -40,6 +40,7 @@ public class TweetCommentsAdapter extends RecyclerView.Adapter<TweetCommentsAdap
         String senderName = holder.mItem.getSender().getUsrName();
         String content = holder.mItem.getContent();
 
+        //noinspection deprecation
         holder.mTextView.setText(Html.fromHtml(StringUtl.getColoredName(senderName) + content));
     }
 

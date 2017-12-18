@@ -17,7 +17,8 @@ import feiteng.test.wechatmoment.widgets.LoaderImageView;
 public class HeaderWrapperAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     //Inner adapter for the real content
-    RecyclerView.Adapter<RecyclerView.ViewHolder> mInnerAdapter = null;
+    private RecyclerView.Adapter<RecyclerView.ViewHolder> mInnerAdapter = null;
+    private UserProfile mUserProfile = null;
 
     private final int HEADER_TYPE = -100;
     private View mHeaderView;
@@ -28,6 +29,7 @@ public class HeaderWrapperAdapter extends RecyclerView.Adapter<RecyclerView.View
      * @param wrappedAdapter: the Adapter to be wrapped
      */
     public HeaderWrapperAdapter(RecyclerView.Adapter wrappedAdapter) {
+        //noinspection unchecked
         mInnerAdapter = wrappedAdapter;
     }
 
@@ -36,6 +38,7 @@ public class HeaderWrapperAdapter extends RecyclerView.Adapter<RecyclerView.View
         if (viewType == HEADER_TYPE) {
             mHeaderView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.tweet_headerview, parent, false);
+            setUsrProfile(mUserProfile);
             return new ViewHolder(mHeaderView);
         }
         return mInnerAdapter.onCreateViewHolder(parent, viewType);
@@ -69,10 +72,10 @@ public class HeaderWrapperAdapter extends RecyclerView.Adapter<RecyclerView.View
     /**
      * View Holder to store HeaderView
      */
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
+    private class ViewHolder extends RecyclerView.ViewHolder {
+        final View mView;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             mView = view;
         }
@@ -81,20 +84,27 @@ public class HeaderWrapperAdapter extends RecyclerView.Adapter<RecyclerView.View
     /**
      * Set Usr profile and avatar and name to mHeaderView
      * The Recycler's header view will be updated
-     * //TODO save images on the disk to improve the experience
      *
-     * @param profile
+     * @param profile This usr's profile
      */
     public void setUsrProfile(UserProfile profile) {
+        if (profile == null) {
+            return;
+        }
         if (mHeaderView != null) {
             TextView nameView = (TextView) mHeaderView.findViewById(R.id.name_textview);
             LoaderImageView profileView = (LoaderImageView) mHeaderView.findViewById(R.id.profile_imageview);
             LoaderImageView avatarView = (LoaderImageView) mHeaderView.findViewById(R.id.avatar_imageview);
 
             nameView.setText(profile.getUsrName());
-            //FIXME check and use the real profile
             profileView.loadUrl(profile.getProfileUrl(), false);
             avatarView.loadUrl(profile.getAvatarUrl(), true);
+
+            //clear cache
+            mUserProfile = null;
+        } else {
+            //load profile later
+            mUserProfile = profile;
         }
     }
 
